@@ -16,7 +16,7 @@ echo ""
 echo "Starting Streamlit app..."
 echo "Local URL: http://localhost:8501"
 
-# Get Local Area Network IP (macOS Compatible)
+# 获取局域网IP (macOS兼容)
 if [ -n "$(ifconfig en0 2>/dev/null | grep 'inet ')" ]; then
     LAN_IP=$(ifconfig en0 | grep 'inet ' | awk '{print $2}')
 elif [ -n "$(ifconfig en1 2>/dev/null | grep 'inet ')" ]; then

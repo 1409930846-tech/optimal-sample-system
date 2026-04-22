@@ -8,6 +8,7 @@ This module provides a graphical interface for:
 3. Display of selected samples and algorithm results
 4. File operations for database integration
 
+Author: Generated for Optimal Samples Selection System
 Python Version: 3.x with Tkinter standard library only
 """
 
@@ -20,15 +21,28 @@ from db_manager import DatabaseManager
 
 
 class OptimalSamplesSelectionSystem:
-    """Main application class for the Optimal Samples Selection System."""
+    """
+    Main application class for the Optimal Samples Selection System.
+
+    This class manages the GUI layout, user interactions, and data flow
+    between different functional areas of the application.
+    """
 
     def __init__(self, root: tk.Tk):
+        """
+        Initialize the main application window.
+
+        Args:
+            root: The root Tkinter window instance
+        """
         self.root = root
 
+        # Configure main window properties
         self.root.title("An Optimal Samples Selection System")
         self.root.geometry("1000x800")
         self.root.resizable(False, False)
 
+        # Color scheme: Blue base with orange and green accents
         self.COLOR_BG = '#e8f4f8'
         self.COLOR_PRIMARY = '#1565c0'
         self.COLOR_SECONDARY = '#ff6f00'
@@ -38,13 +52,18 @@ class OptimalSamplesSelectionSystem:
 
         self.root.configure(bg=self.COLOR_BG)
 
+        # Configure ttk styles for colored buttons (avoids macOS Aqua tk.Button limitations)
         self._configure_ttk_styles()
 
         self.db_manager = DatabaseManager()
 
+        # Internal state for storing selected samples
         self._selected_samples: List[int] = []
+
+        # Track validation state for dynamic j validation
         self._validation_trace = False
 
+        # Build the complete user interface
         self._build_ui()
 
     # ------------------------------------------------------------------ #
@@ -55,6 +74,7 @@ class OptimalSamplesSelectionSystem:
         style = ttk.Style(self.root)
         style.theme_use('default')
 
+        # Orange style
         style.layout('Colored.TButton', [
             ('Button.button', {'sticky': 'nswe', 'children': [
                 ('Button.padding', {'sticky': 'nswe', 'children': [
@@ -94,6 +114,7 @@ class OptimalSamplesSelectionSystem:
                 }
             })
 
+        # For random/manual buttons (larger font)
         for color_name, color_hex, font_size in [
             ('OrangeLarge.TButton', self.COLOR_SECONDARY, 12),
             ('GreenLarge.TButton',  self.COLOR_ACCENT,   12),
@@ -126,14 +147,23 @@ class OptimalSamplesSelectionSystem:
     # ------------------------------------------------------------------ #
     def _build_ui(self) -> None:
         """Build the complete user interface layout."""
+        # Title Section
         self._create_title_section()
 
+        # Main Content Container
         self.main_container = tk.Frame(self.root, bg=self.COLOR_BG)
         self.main_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
 
+        # 1. Parameter Input Frame
         self._create_parameter_input_frame()
+
+        # 2. Sample Selection & Display Frame
         self._create_sample_selection_display_frame()
+
+        # 3. File Operation Frame
         self._create_file_operation_frame()
+
+        # 4. Result Display Frame
         self._create_result_display_frame()
 
     def _create_title_section(self) -> None:
@@ -163,6 +193,7 @@ class OptimalSamplesSelectionSystem:
         )
         self.param_outer_frame.pack(fill=tk.X, pady=(0, 12))
 
+        # Title for parameter section - standalone header above white card
         param_title = tk.Label(
             self.param_outer_frame,
             text="Parameter Input",
@@ -174,11 +205,13 @@ class OptimalSamplesSelectionSystem:
         )
         param_title.pack(fill=tk.X, pady=(0, 8))
 
+        # Inner content frame with white card
         self.param_inner_frame = tk.Frame(
             self.param_outer_frame, bg=self.COLOR_CARD, padx=20, pady=15
         )
         self.param_inner_frame.pack(fill=tk.X)
 
+        # Container for parameter groups
         param_groups_container = tk.Frame(self.param_inner_frame, bg=self.COLOR_CARD)
         param_groups_container.pack(fill=tk.X)
 
@@ -328,21 +361,29 @@ class OptimalSamplesSelectionSystem:
         )
         self.sample_inner_frame.pack(fill=tk.BOTH, expand=True)
 
+        # Use grid layout for pixel-perfect alignment between buttons and text box
+        # 2 columns: left for buttons, right for text display
         self.sample_inner_frame.grid_rowconfigure(0, weight=1)
-        self.sample_inner_frame.grid_columnconfigure(0, weight=0)
-        self.sample_inner_frame.grid_columnconfigure(1, weight=1)
+        self.sample_inner_frame.grid_columnconfigure(0, weight=0)  # Buttons column - fixed
+        self.sample_inner_frame.grid_columnconfigure(1, weight=1)  # Text display column - expands
 
+        # Left Part: Selection Buttons Container
+        # Use grid to make left frame span full height of sample_inner_frame
         self.selection_left_frame = tk.Frame(
             self.sample_inner_frame, bg=self.COLOR_CARD, bd=0
         )
         self.selection_left_frame.grid(row=0, column=0, sticky='nswe', padx=(0, 10))
 
+        # Configure internal grid for even vertical distribution of buttons
+        # 3 rows: top spacer / random button / manual button / bottom spacer
+        # Weights 1:2:2:1 give even spacing above, between, and below buttons
         self.selection_left_frame.grid_rowconfigure(0, weight=1, uniform='vdist')
         self.selection_left_frame.grid_rowconfigure(1, weight=2, uniform='vdist')
         self.selection_left_frame.grid_rowconfigure(2, weight=2, uniform='vdist')
         self.selection_left_frame.grid_rowconfigure(3, weight=1, uniform='vdist')
         self.selection_left_frame.grid_columnconfigure(0, weight=1)
 
+        # Random selection button — row 1, fills entire cell width
         self.random_btn = ttk.Button(
             self.selection_left_frame,
             text="Randomly Select n Samples",
@@ -351,6 +392,7 @@ class OptimalSamplesSelectionSystem:
         )
         self.random_btn.grid(row=1, column=0, sticky='ew', padx=15, pady=5)
 
+        # Manual input button — row 2, same column
         self.manual_btn = ttk.Button(
             self.selection_left_frame,
             text="Manually Input n Samples",
@@ -359,6 +401,7 @@ class OptimalSamplesSelectionSystem:
         )
         self.manual_btn.grid(row=2, column=0, sticky='ew', padx=15, pady=5)
 
+        # Right Part: Sample Display — use grid placement spanning full height
         self.selection_right_frame = tk.Frame(
             self.sample_inner_frame, bg=self.COLOR_CARD, bd=0
         )
@@ -544,6 +587,7 @@ class OptimalSamplesSelectionSystem:
         button_frame = tk.Frame(dialog_frame, bg=self.COLOR_CARD)
         button_frame.pack(pady=(10, 0))
 
+        # Submit button - ttk Orange
         submit_btn = ttk.Button(
             button_frame,
             text="Submit",
@@ -552,6 +596,7 @@ class OptimalSamplesSelectionSystem:
         )
         submit_btn.grid(row=0, column=0, padx=10)
 
+        # Cancel button - ttk Gray
         cancel_btn = ttk.Button(
             button_frame,
             text="Cancel",
@@ -591,9 +636,11 @@ class OptimalSamplesSelectionSystem:
         )
         file_title.pack(fill=tk.X, pady=(0, 8))
 
+        # 创建内部容器
         file_inner_frame = tk.Frame(self.file_outer_frame, bg=self.COLOR_CARD)
         file_inner_frame.pack(fill=tk.X, padx=10, pady=10)
 
+        # 左侧：文件列表
         list_frame = tk.Frame(file_inner_frame, bg=self.COLOR_CARD)
         list_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
 
@@ -606,6 +653,7 @@ class OptimalSamplesSelectionSystem:
         )
         list_label.pack(anchor=tk.W)
 
+        # 文件列表列表框
         self.file_listbox = tk.Listbox(
             list_frame,
             height=4,
@@ -617,9 +665,11 @@ class OptimalSamplesSelectionSystem:
         )
         self.file_listbox.pack(fill=tk.BOTH, expand=True, pady=(5, 0))
 
+        # 四个按钮两行两列排列
         btn_grid_frame = tk.Frame(file_inner_frame, bg=self.COLOR_CARD)
         btn_grid_frame.pack(side=tk.RIGHT, padx=(10, 0))
 
+        # 配置网格布局：2列
         btn_grid_frame.grid_columnconfigure(0, weight=1)
         btn_grid_frame.grid_columnconfigure(1, weight=1)
 
@@ -655,6 +705,7 @@ class OptimalSamplesSelectionSystem:
         )
         self.delete_btn.grid(row=1, column=1, padx=5, pady=5, sticky='ew')
 
+        # 初始化文件列表
         self._refresh_file_list()
 
     def _create_result_display_frame(self) -> None:
@@ -710,6 +761,7 @@ class OptimalSamplesSelectionSystem:
         spacer = tk.Label(clear_container, text="", bg=self.COLOR_CARD)
         spacer.pack(side=tk.LEFT, expand=True)
 
+        # Clear Results button - ttk Blue
         self.clear_btn = ttk.Button(
             clear_container,
             text="Clear Results",
@@ -737,6 +789,7 @@ class OptimalSamplesSelectionSystem:
 
     def _on_run_algorithm(self) -> None:
         """Handle the 'Run Optimal Grouping Algorithm' button click."""
+        # 获取所有参数
         m = self._validate_parameter('m')
         if m is None:
             return
@@ -763,16 +816,16 @@ class OptimalSamplesSelectionSystem:
             results, info, filename = run_algorithm(
                 m, n, k, j, s, self._selected_samples
             )
-
+            
             if results:
                 self.display_results(results)
                 messagebox.showinfo("Algorithm Complete", info, parent=self.root)
-                self._refresh_file_list()
+                self._refresh_file_list()  # 刷新文件列表
             else:
                 messagebox.showerror("Algorithm Error", info, parent=self.root)
         except Exception as e:
             messagebox.showerror("Algorithm Error", f"Error running algorithm: {str(e)}", parent=self.root)
-
+    
     def execute_from_db(self) -> None:
         """Execute (Retrieve Results) from DB File."""
         selection = self.file_listbox.curselection()
@@ -783,10 +836,10 @@ class OptimalSamplesSelectionSystem:
                 parent=self.root
             )
             return
-
+        
         filename = self.file_listbox.get(selection[0])
         results = self.db_manager.execute_file(filename)
-
+        
         if results:
             self.display_results(results)
             messagebox.showinfo(
@@ -811,7 +864,7 @@ class OptimalSamplesSelectionSystem:
                 parent=self.root
             )
             return
-
+        
         filename = self.file_listbox.get(selection[0])
 
         if messagebox.askyesno(
@@ -827,6 +880,7 @@ class OptimalSamplesSelectionSystem:
                     parent=self.root
                 )
                 self._refresh_file_list()
+                # 如果当前显示的是被删除文件的结果，清空显示
                 self._clear_results()
             else:
                 messagebox.showerror(
